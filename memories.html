@@ -1,0 +1,202 @@
+<!-- From the source we came, to the source we will return. -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=0.6" />
+    <title>htmlfest</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <style>
+      html,
+      body {
+        background-color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="memories">
+      <a href="/">
+        <img src="images/htmlfest_logo.png" alt="htmlfest" width="400"
+      /></a>
+      <br />
+      what will you remember?
+      <br />
+      memories made: <span id="score">0</span>
+      <br />
+      most memories: <span id="top-score">0</span>
+      <br />
+      <div id="timeleft"><div id="progress"></div></div>
+      <div id="board"></div>
+      <script>
+        const board = document.querySelector("#board");
+        const score = document.querySelector("#score");
+        const topScore = document.querySelector("#top-score");
+        const timeProgress = document.querySelector("#progress");
+
+        let canStartTimer = true;
+
+        let cards = [];
+        for (let i = 0; i < 194; i++) {
+          cards.push(i);
+        }
+        let shuffled = [];
+        while (cards.length > 0) {
+          let index = Math.floor(Math.random() * cards.length);
+          shuffled.push(cards[index]);
+          cards.splice(index, 1);
+        }
+
+        function createCard(idx, onFlip) {
+          const card = document.createElement("div");
+          card.classList.add("card");
+          card.innerHTML = `<div class="card-inner"><div class="front" style="background-image: url(images/memories/converted_${idx}.JPEG)"></div><div class="back"><div class="back-text">click to flip</div></div></div>`;
+          card.addEventListener("click", function () {
+            onFlip();
+          });
+          return card;
+        }
+
+        let currentIdx = 0;
+        function getNextIdx() {
+          const idx = currentIdx;
+          currentIdx = (currentIdx + 1) % shuffled.length;
+          return shuffled[idx];
+        }
+
+        let boardCards = [];
+        let scoreNum = 0;
+        let topScoreNum = 0;
+        const timeToPlay = 30 * 1000;
+        let timeStart = Date.now() - timeToPlay;
+
+        setInterval(() => {
+          const timeElapsed = Date.now() - timeStart;
+          const timeLeft = timeToPlay - timeElapsed;
+          timeProgress.style.width = (timeLeft / timeToPlay) * 100 + "%";
+          if (timeLeft <= 0) {
+            scoreNum = 0;
+            score.innerText = scoreNum;
+            canStartTimer = true;
+          }
+        }, 1000 / 60);
+
+        function clearBoard() {
+          board.innerHTML = "";
+          boardCards = [];
+        }
+
+        function loadBoard(width, height) {
+          clearBoard();
+          let disabledFlips = true;
+          const cardCount = (width * height) / 2;
+          let currentHand = [];
+          for (let i = 0; i < cardCount; i++) {
+            const nextIdx = getNextIdx();
+            currentHand.push(nextIdx);
+            currentHand.push(nextIdx);
+          }
+          let shuffledHand = [];
+          while (currentHand.length > 0) {
+            let index = Math.floor(Math.random() * currentHand.length);
+            shuffledHand.push(currentHand[index]);
+            currentHand.splice(index, 1);
+          }
+
+          function checkWin() {
+            if (boardCards.filter((c) => !c.isDone()).length === 0) {
+              disabledFlips = true;
+              setTimeout(() => {
+                disabledFlips = false;
+                loadBoard(width, height);
+              }, 2000);
+            }
+          }
+
+          let i = 0;
+          for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+              let cardObj;
+              const card = createCard(shuffledHand[i++], () => {
+                if (disabledFlips) return;
+                if (cardObj.isDone()) return;
+
+                if (canStartTimer) {
+                  canStartTimer = false;
+                  timeStart = Date.now();
+                }
+
+                cardObj.flip();
+                const flipped = boardCards.filter(
+                  (c) => !c.isFlipped() && !c.isDone()
+                );
+                if (flipped.length >= 2) {
+                  disabledFlips = true;
+                  if (flipped[0].deckId === flipped[1].deckId) {
+                    setTimeout(() => {
+                      flipped[0].ele.classList.add("done");
+                      flipped[1].ele.classList.add("done");
+                      scoreNum++;
+                      score.innerText = scoreNum;
+                      if (scoreNum > topScoreNum) {
+                        topScoreNum = scoreNum;
+                        topScore.innerText = topScoreNum;
+                      }
+                      checkWin();
+                      disabledFlips = false;
+                    }, 200);
+                  } else {
+                    setTimeout(() => {
+                      flipped[0].flip();
+                      flipped[1].flip();
+                      disabledFlips = false;
+                    }, 400);
+                  }
+                }
+              });
+              cardObj = {
+                boardId: i,
+                deckId: shuffledHand[i - 1],
+                ele: card,
+                isFlipped: () => card.classList.contains("flipped"),
+                isDone: () => card.classList.contains("done"),
+                flip: () => {
+                  card.classList.toggle("flipped");
+                },
+              };
+              card.style.left = `${x * 100}px`;
+              card.style.top = `${y * 100}px`;
+              card.style.width = 100 / width + "%";
+              card.style.height = 100 / height + "%";
+              board.appendChild(card);
+              boardCards.push(cardObj);
+            }
+          }
+
+          i = 0;
+          for (let card of boardCards) {
+            i++;
+            setTimeout(() => {
+              card.flip();
+            }, 1000 + 100 * i);
+          }
+          setTimeout(() => {
+            disabledFlips = false;
+          }, 1000 + 100 * i);
+        }
+
+        function resetGame() {
+          score.innerText = scoreNum;
+          topScore.innerText = topScoreNum;
+          loadBoard(2, 3);
+        }
+
+        resetGame();
+        // 2, 2 | 1
+        // 2, 3 | 2
+        // 2, 4 | 3
+        // 2, 5 | 3
+        // 4, 6 | 3
+        // 4, 7 | Forever
+      </script>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,163 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Times New Roman", Times, serif;
+  background-color: #f4f4f4;
+  color: #000;
+  font-size: 16px;
+  line-height: 1.6em;
+  font-weight: 400;
+  text-align: left;
+}
+
+#homepage {
+  padding: 40px;
+}
+
+#homepage textarea {
+  width: 500px;
+  height: 4em;
+}
+
+#memories {
+  background-color: black;
+  color: white;
+  padding: 5px;
+}
+
+#memories a {
+  color: red;
+}
+
+#memories #board {
+  width: 600px;
+  height: 800px;
+}
+
+.card {
+  display: inline-block;
+  user-select: none;
+}
+
+.card .card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 800px;
+  transform: scale(0.95);
+}
+
+.card .back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: black;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+}
+
+.card .front {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+}
+
+.card .back {
+  animation: card-flip 0.25s ease-in-out;
+  animation-fill-mode: forwards;
+  outline: 3px dashed pink;
+}
+
+.card .front {
+  animation: card-flip2 0.25s ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.card .back-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.card.done .back {
+  background: transparent;
+  outline: 0px solid pink;
+}
+
+.card.done .back-text {
+  color: transparent;
+}
+
+.card.done .front {
+  /* display: none; */
+}
+
+
+.card.done .front,
+.card.flipped .back {
+  animation: card-flip2 0.25s ease-in-out backwards;
+  animation-fill-mode: backwards;
+}
+
+.card.done .back,
+.card.flipped .front {
+  animation: card-flip 0.25s ease-in-out backwards;
+  animation-fill-mode: backwards;
+}
+
+.card.done {
+  animation: flash 0.25s ease-in-out forwards;
+  animation-fill-mode: forwards;
+}
+
+#timeleft {
+  width: 400px;
+  height: 5px;
+  border: 1px solid white;
+  margin-bottom: 1em;
+}
+
+#timeleft #progress {
+  background: white;
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes card-flip {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(180deg);
+  }
+}
+
+@keyframes card-flip2 {
+  0% {
+    transform: rotateY(180deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes flash {
+  0% {
+    background: pink;
+  }
+  100% {
+    background: transparent;
+  }
+}

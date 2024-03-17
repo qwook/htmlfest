@@ -1,0 +1,33 @@
+<!-- From the source we came, to the source we will return. -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=0.6" />
+    <title>htmlfest</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <div id="homepage">
+      <img src="images/htmlfest_logo.png" alt="htmlfest" width="400" />
+      <ul>
+        <li><a href="/memories.html">memories</a></li>
+      </ul>
+      <form>
+        <textarea id="source">
+<img src="https://htmlfest.com/images/htmlfest_logo.png" alt="htmlfest" width="400" /></textarea
+        >
+        <br />
+        <button id="copy">Copy</button>
+      </form>
+      <script>
+        document.querySelector("#source").innerText =
+          document.body.parentElement.outerHTML;
+        document.querySelector("#copy").addEventListener("click", function () {
+          var textarea = document.querySelector("#source");
+          textarea.select();
+          document.execCommand("copy");
+        });
+      </script>
+    </div>
+  </body>
+</html>
